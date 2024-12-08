@@ -15,30 +15,56 @@ void performanceTestCustom(HashTable<K, V>& hashTable, int operations) {
 
     auto start = std::chrono::high_resolution_clock::now();
 
+    int successfulInserts = 0;
+    int successfulRetrieves = 0;
+    int successfulRemoves = 0;
+
     for (int i = 0; i < operations; ++i) {
         int key = dis(gen);
         int value = dis(gen);
-        hashTable.insert(key, value);
+        try {
+            hashTable.insert(key, value);
+            successfulInserts++;
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Error during insertion: " << e.what() << std::endl;
+            break;
+        }
     }
 
     for (int i = 0; i < operations; ++i) {
         int key = dis(gen);
         try {
             hashTable.retrieve(key);
+            successfulRetrieves++;
         }
         catch (const std::runtime_error&) {
             // Key not found, ignore
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Error during retrieval: " << e.what() << std::endl;
         }
     }
 
     for (int i = 0; i < operations; ++i) {
         int key = dis(gen);
-        hashTable.remove(key);
+        try {
+            hashTable.remove(key);
+            successfulRemoves++;
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Error during removal: " << e.what() << std::endl;
+        }
     }
 
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     std::cout << "Time taken for " << operations << " operations: " << duration.count() << " ms" << std::endl;
+    std::cout << "Successful inserts: " << successfulInserts << std::endl;
+    std::cout << "Successful retrieves: " << successfulRetrieves << std::endl;
+    std::cout << "Successful removes: " << successfulRemoves << std::endl;
+    std::cout << "Final hash table size: " << hashTable.getSize() << std::endl;
+    std::cout << "Final hash table count: " << hashTable.getCount() << std::endl;
 }
 
 // For std::unordered_map
